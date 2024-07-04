@@ -1,17 +1,17 @@
-CC=arm-none-eabi-gcc
-AR=arm-none-eabi-ar
+CC=clang
+AR=llvm-ar
 
 ###########################################
 
 vpath %.c src src/peripherals
 
 CFLAGS  = -g -O2 -Wall
-CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
+CFLAGS += -target arm-none-eabi -mlittle-endian -mthumb -mcpu=cortex-m4 ##-mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -ffreestanding -nostdlib
 CFLAGS += -Iinc -Iinc/core -Iinc/peripherals
 
-#SRCS  = stm32f4_discovery.c
+# SRCS  = stm32f4_discovery.c
 SRCS = misc.c stm32f4xx_dma.c stm32f4xx_rcc.c stm32f4xx_adc.c \
 	stm32f4xx_exti.c stm32f4xx_rng.c stm32f4xx_can.c stm32f4xx_flash.c \
 	stm32f4xx_rtc.c stm32f4xx_crc.c stm32f4xx_fsmc.c stm32f4xx_sdio.c \
@@ -24,15 +24,17 @@ SRCS = misc.c stm32f4xx_dma.c stm32f4xx_rcc.c stm32f4xx_adc.c \
 	stm32f4xx_dcmi.c stm32f4xx_pwr.c
 
 OBJS = $(SRCS:.c=.o)
+%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 .PHONY: libstm32f4.a
 
 all: libstm32f4.a
 
-%.o : %.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+
 
 libstm32f4.a: $(OBJS)
+# llvm-link $(OBJS) -o $@ 
 	$(AR) -r $@ $(OBJS)
 
 clean:

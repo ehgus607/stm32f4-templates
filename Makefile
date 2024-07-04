@@ -15,12 +15,19 @@ STLINK=/mnt/share/Programming/embedded/stm32/stlink
 
 ###################################################
 
-CC=arm-none-eabi-gcc
-OBJCOPY=arm-none-eabi-objcopy
+CC=clang
+OBJCOPY=objcopy
+AR=llvm-ar
 
-CFLAGS  = -g -Wall -Tstm32_flash.ld 
-CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
+CFLAGS  = -g -O2 -Wall -Tstm32_flash.ld 
+CFLAGS += -target arm-none-eabi -mlittle-endian -mthumb -mcpu=cortex-m4 ##-mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS += -ffreestanding -nostdlib
+
+CFLAGS_2  = -g -O2 -Wall -Tstm32_flash.ld 
+CFLAGS_2 += -target arm-none-eabi -mlittle-endian -mthumb -mcpu=cortex-m4 ##-mthumb-interwork
+CFLAGS_2 += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS_2 += -ffreestanding -nostdlib
 
 ###################################################
 
@@ -29,12 +36,13 @@ vpath %.a lib
 
 ROOT=$(shell pwd)
 
-CFLAGS += -Iinc -Ilib -Ilib/inc 
+CFLAGS += -Iinc -Ilib -Ilib/inc
 CFLAGS += -Ilib/inc/core -Ilib/inc/peripherals 
 
 SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
 OBJS = $(SRCS:.c=.o)
+OBJS2 = $(OBJS:.s=.o)
 
 ###################################################
 
@@ -55,12 +63,24 @@ ctags:
 lib:
 	$(MAKE) -C lib
 
+# %.o : %.c
+# 	$(CC) $(CFLAGS) -c -o $@ $^
+
+proj: 	$(PROJ_NAME).elf
+
+
+# $(PROJ_NAME).elf: $(SRCS)
+# 	$(CC) $(CFLAGS) $^ -o $@ -Llib -lstm32f4
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $^
+
 proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ -Llib -lstm32f4
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
+# $(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
+# $(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
 clean:
 	rm -f *.o *.i
