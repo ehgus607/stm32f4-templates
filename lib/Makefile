@@ -9,7 +9,7 @@ CFLAGS  = -g -O2 -Wall
 CFLAGS += -target arm-none-eabi -mlittle-endian -mthumb -mcpu=cortex-m4 ##-mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -ffreestanding -nostdlib
-CFLAGS += -Iinc -Iinc/core -Iinc/peripherals
+CFLAGS += -Iinc -Iinc/core -Iinc/peripherals -Iinc/NN --sysroot=/usr
 
 # SRCS  = stm32f4_discovery.c
 SRCS = misc.c stm32f4xx_dma.c stm32f4xx_rcc.c stm32f4xx_adc.c \
@@ -21,7 +21,8 @@ SRCS = misc.c stm32f4xx_dma.c stm32f4xx_rcc.c stm32f4xx_adc.c \
 	stm32f4xx_cryp_tdes.c stm32f4xx_hash_sha1.c  stm32f4xx_usart.c \
 	stm32f4xx_dac.c stm32f4xx_i2c.c stm32f4xx_wwdg.c \
 	stm32f4xx_dbgmcu.c stm32f4xx_iwdg.c \
-	stm32f4xx_dcmi.c stm32f4xx_pwr.c
+	stm32f4xx_dcmi.c stm32f4xx_pwr.c \
+	$(shell find src/NN -name '*.c')
 
 OBJS = $(SRCS:.c=.o)
 %.o : %.c
